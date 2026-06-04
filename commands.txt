@@ -1,0 +1,55 @@
+apt update
+apt install python3-pip -y
+
+python3 -m pip install -r requirements.txt --break-system-packages
+
+
+# Setup Firewall using firewalld
+yum install firewalld -y
+systemctl start firewalld
+systemctl enable firewalld
+
+firewall-cmd --zone=public --add-port=8080/tcp --permanent
+firewall-cmd --zone=public --add-port=8081/tcp --permanent
+firewall-cmd --zone=public --add-port=8090/tcp --permanent
+firewall-cmd --zone=public --add-port=1993/tcp --permanent
+firewall-cmd --zone=public --add-port=2525/tcp --permanent
+firewall-cmd --zone=public --add-port=25/tcp --permanent
+firewall-cmd --zone=public --add-port=465/tcp --permanent
+firewall-cmd --reload
+
+# IF STILL NOT WORK : 
+iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
+iptables -I INPUT -p tcp --dport 1993 -j ACCEPT
+iptables -I INPUT -p tcp --dport 465 -j ACCEPT
+service iptables save
+service iptables restart
+
+# Keep the script running after closing SSH terminal
+# Option 1: Using screen (Recommended)
+# 1. Install screen if not installed
+yum install screen -y
+# 2. Create a new screen session named 'myapp'
+screen -S myapp
+# 3. Run your application
+python3 app.py
+# 4. Detach from the screen session (leaves it running in background)
+# Press Ctrl+A, then press D
+# To re-attach to the session later, type:
+# screen -r myapp
+
+# Option 2: Using tmux
+# 1. Install tmux
+yum install tmux -y
+# 2. Start a new tmux session
+tmux new -s myapp
+# 3. Run your application
+python3 app.py
+# 4. Detach from the session
+# Press Ctrl+B, then press D
+# To re-attach later, type:
+# tmux attach -t myapp
+
+# Option 3: Using nohup (simplest for a single command)
+# Run the application in the background and redirect output to 'output.log'
+nohup python3 app.py > output.log 2>&1 &
