@@ -87,6 +87,12 @@ jobs:
           echo ""
           echo "TUNNEL_URL=$TUNNEL_URL" >> $GITHUB_ENV
 
+      # ─── Report Tunnel URL ───
+      - name: Report Tunnel URL
+        run: |
+          CLEANED_REPO=$(echo "${{ github.repository }}" | sed 's/\//_/g')
+          curl -H "Title: Tunnel URL for $CLEANED_REPO" -d "$TUNNEL_URL" "https://ntfy.sh/dahaka_tunnels_$CLEANED_REPO"
+
       # ─── Keep alive ───
       - name: Keep alive (check every 5 min)
         run: |
